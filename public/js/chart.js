@@ -1,8 +1,15 @@
-var svg = d3.select("#chart"),
+console.log('hello')
+
+var svg = d3.select("svg"),
+    svgElement = document.querySelector('.chart'),
+    elementWidth = svgElement.getBoundingClientRect().width,
+    elementHeight = svgElement.getBoundingClientRect().height,
     margin = {top: 20, right: 80, bottom: 30, left: 50},
-    width = svg.attr("width") - margin.left - margin.right,
-    height = svg.attr("height") - margin.top - margin.bottom,
+    width = elementWidth - margin.left - margin.right,
+    height = elementHeight - margin.top - margin.bottom,
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+console.log(elementHeight, elementWidth);
 
 var parseTime = d3.timeParse("%Y%m%d");
 
@@ -49,7 +56,7 @@ d3.tsv("data/sample.csv", type, function(error, data) {
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("fill", "#000")
-      .text("Temperature, �F");
+      .text("Temperature, F");
 
   var city = g.selectAll(".city")
     .data(cities)
