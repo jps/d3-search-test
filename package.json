@@ -1,0 +1,8 @@
+{
+  "name": "d3-search-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/jps/d3-search-test",
+  "author": "jps <me@jspenc.com>",
+  "license": "MIT"
+}
