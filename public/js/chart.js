@@ -1,23 +1,4 @@
-CTYPE html>
-<meta charset="utf-8">
-<style>
-
-.axis--x path {
-  display: none;
-}
-
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
-
-</style>
-<svg width="960" height="500"></svg>
-<script src="//d3js.org/d3.v4.min.js"></script>
-<script>
-
-var svg = d3.select("svg"),
+var svg = d3.select("#chart"),
     margin = {top: 20, right: 80, bottom: 30, left: 50},
     width = svg.attr("width") - margin.left - margin.right,
     height = svg.attr("height") - margin.top - margin.bottom,
@@ -34,7 +15,7 @@ var line = d3.line()
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.temperature); });
 
-d3.tsv("data.tsv", type, function(error, data) {
+d3.tsv("data/sample.csv", type, function(error, data) {
   if (error) throw error;
 
   var cities = data.columns.slice(1).map(function(id) {
@@ -68,7 +49,7 @@ d3.tsv("data.tsv", type, function(error, data) {
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("fill", "#000")
-      .text("Temperature, ºF");
+      .text("Temperature, ï¿½F");
 
   var city = g.selectAll(".city")
     .data(cities)
@@ -94,7 +75,3 @@ function type(d, _, columns) {
   for (var i = 1, n = columns.length, c; i < n; ++i) d[c = columns[i]] = +d[c];
   return d;
 }
-
-</script>
-
-
