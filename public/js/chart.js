@@ -1,84 +1,78 @@
-console.log('hello')
+(function() {
+  var d3 = Plotly.d3;
+  
+  var WIDTH_IN_PERCENT_OF_PARENT = 90,
+      HEIGHT_IN_PERCENT_OF_PARENT = 90;
+  
+  var gd3 = d3.select('body')
+      .append('div')
+      .style({
+          width: WIDTH_IN_PERCENT_OF_PARENT + '%',
+          'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
+  
+          height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
+          'margin-top': (100 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+      });
+  
+  var gd = gd3.node();
+  
+  // Plotly.plot(gd, [{
+  //     type: 'bar',
+  //     x: [1, 2, 3, 4],
+  //     y: [5, 10, 2, 8],
+  //     marker: {
+  //         color: '#C8A2C8',
+  //         line: {
+  //             width: 2.5
+  //         }
+  //     }
+  // }], {
+  //     title: 'Auto-Resize',
+  //     font: {
+  //         size: 16
+  //     }
+  // });
 
-var svg = d3.select("svg"),
-    svgElement = document.querySelector('.chart'),
-    elementWidth = svgElement.getBoundingClientRect().width,
-    elementHeight = svgElement.getBoundingClientRect().height,
-    margin = {top: 20, right: 80, bottom: 30, left: 50},
-    width = elementWidth - margin.left - margin.right,
-    height = elementHeight - margin.top - margin.bottom,
-    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+  //"data/SearchSample.csv"
 
-console.log(elementHeight, elementWidth);
 
-var parseTime = d3.timeParse("%Y%m%d");
+  
+  Plotly.d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", function(err, rows){
 
-var x = d3.scaleTime().range([0, width]),
-    y = d3.scaleLinear().range([height, 0]),
-    z = d3.scaleOrdinal(d3.schemeCategory10);
+    function unpack(rows, key) {
+    return rows.map(function(row) { return row[key]; });
+  }
+    
+  var trace1 = {
+    type: "scatter",
+    mode: "lines",
+    name: 'AAPL High',
+    x: unpack(rows, 'Date'),
+    y: unpack(rows, 'AAPL.High'),
+    line: {color: '#17BECF'}
+  }
+  
+  var trace2 = {
+    type: "scatter",
+    mode: "lines",
+    name: 'AAPL Low',
+    x: unpack(rows, 'Date'),
+    y: unpack(rows, 'AAPL.Low'),
+    line: {color: '#7F7F7F'}
+  }
+  
+  var data = [trace1,trace2];
+  
+  var layout = {
+    title: 'Basic Time Series',
+  };
+  
+    Plotly.plot(gd, data, layout);
+  })
 
-var line = d3.line()
-    .curve(d3.curveBasis)
-    .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.temperature); });
-
-d3.tsv("data/sample.csv", type, function(error, data) {
-  if (error) throw error;
-
-  var cities = data.columns.slice(1).map(function(id) {
-    return {
-      id: id,
-      values: data.map(function(d) {
-        return {date: d.date, temperature: d[id]};
-      })
-    };
-  });
-
-  x.domain(d3.extent(data, function(d) { return d.date; }));
-
-  y.domain([
-    d3.min(cities, function(c) { return d3.min(c.values, function(d) { return d.temperature; }); }),
-    d3.max(cities, function(c) { return d3.max(c.values, function(d) { return d.temperature; }); })
-  ]);
-
-  z.domain(cities.map(function(c) { return c.id; }));
-
-  g.append("g")
-      .attr("class", "axis axis--x")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
-
-  g.append("g")
-      .attr("class", "axis axis--y")
-      .call(d3.axisLeft(y))
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("fill", "#000")
-      .text("Temperature, F");
-
-  var city = g.selectAll(".city")
-    .data(cities)
-    .enter().append("g")
-      .attr("class", "city");
-
-  city.append("path")
-      .attr("class", "line")
-      .attr("d", function(d) { return line(d.values); })
-      .style("stroke", function(d) { return z(d.id); });
-
-  city.append("text")
-      .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
-      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
-      .attr("x", 3)
-      .attr("dy", "0.35em")
-      .style("font", "10px sans-serif")
-      .text(function(d) { return d.id; });
-});
-
-function type(d, _, columns) {
-  d.date = parseTime(d.date);
-  for (var i = 1, n = columns.length, c; i < n; ++i) d[c = columns[i]] = +d[c];
-  return d;
-}
+  window.onresize = function() {
+      Plotly.Plots.resize(gd);
+  };
+  
+})();
