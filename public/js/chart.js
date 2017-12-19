@@ -1,10 +1,10 @@
-(function() {
-  var d3 = Plotly.d3;
-  
+(function() {  
+  var queue = Plotly.d3.queue
+
   var WIDTH_IN_PERCENT_OF_PARENT = 90,
       HEIGHT_IN_PERCENT_OF_PARENT = 90;
   
-  var gd3 = d3.select('body')
+  var gd3 = Plotly.d3.select('body')
       .append('div')
       .style({
           width: WIDTH_IN_PERCENT_OF_PARENT + '%',
@@ -16,63 +16,45 @@
   
   var gd = gd3.node();
   
-  // Plotly.plot(gd, [{
-  //     type: 'bar',
-  //     x: [1, 2, 3, 4],
-  //     y: [5, 10, 2, 8],
-  //     marker: {
-  //         color: '#C8A2C8',
-  //         line: {
-  //             width: 2.5
-  //         }
-  //     }
-  // }], {
-  //     title: 'Auto-Resize',
-  //     font: {
-  //         size: 16
-  //     }
-  // });
-
-  
-  //"data/SearchSample.csv"
-
-
-  
-  Plotly.d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", function(err, rows){
-
-    function unpack(rows, key) {
-    return rows.map(function(row) { return row[key]; });
-  }
+  let unpack = function unpack(rows, key) {
+    return rows.map(function(row) {
+       return row[key]; 
+      });    
+  };
     
-  var trace1 = {
-    type: "scatter",
-    mode: "lines",
-    name: 'AAPL High',
-    x: unpack(rows, 'Date'),
-    y: unpack(rows, 'AAPL.High'),
-    line: {color: '#17BECF'}
-  }
-  
-  var trace2 = {
-    type: "scatter",
-    mode: "lines",
-    name: 'AAPL Low',
-    x: unpack(rows, 'Date'),
-    y: unpack(rows, 'AAPL.Low'),
-    line: {color: '#7F7F7F'}
-  }
-  
-  var data = [trace1,trace2];
-  
-  var layout = {
-    title: 'Basic Time Series',
-  };
-  
-    Plotly.plot(gd, data, layout);
-  })
+  d3.queue()
+    .defer(d3.csv, "https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv")
+    .await(makeChart)
 
-  window.onresize = function() {
-      Plotly.Plots.resize(gd);
-  };
+  function makeChart(error, data1) {
+    var trace1 = {
+      type: "scatter",
+      mode: "lines",
+      name: 'AAPL High',
+      x: unpack(data1, 'Date'),
+      y: unpack(data1, 'AAPL.High'),
+      line: {color: '#17BECF'}
+    }
+    
+    var trace2 = {
+      type: "scatter",
+      mode: "lines",
+      name: 'AAPL Low',
+      x: unpack(data1, 'Date'),
+      y: unpack(data1, 'AAPL.Low'),
+      line: {color: '#7F7F7F'}
+    }
+    
+    var data = [trace1,trace2];
+    
+    var layout = {
+      title: 'Basic Time Series',
+    };
+    
+    Plotly.plot(gd, data, layout);
   
+    window.onresize = function() {
+        Plotly.Plots.resize(gd);
+    };
+  }
 })();
